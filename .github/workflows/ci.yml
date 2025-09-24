@@ -1,0 +1,160 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test Application
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Create required directories
+      run: |
+        mkdir -p nginx/logs
+        mkdir -p logs
+        mkdir -p backups
+        
+    - name: Build Docker images
+      run: |
+        docker compose build
+        
+    - name: Start services
+      run: |
+        docker compose up -d
+        
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+        
+    - name: Health check
+      run: |
+        docker compose ps
+        
+        # Waithing for service readiness
+        timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+        
+    - name: Run integration tests
+      run: |
+        # Main page test
+        curl -f http://localhost/ | jq .
+        
+        # Health endpoint test
+        curl -f http://localhost/health | jq .
+        
+        # Statistics test
+        curl -f http://localhost/stats | jq .
+        
+        # Nginx health test
+        curl -f http://localhost/nginx-health
+        
+    - name: Show logs on failure
+      if: failure()
+      run: |
+        echo "=== Docker Compose Logs ==="
+        docker compose logs
+        
+        echo "=== Container Status ==="
+        docker compose ps -a
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose down -v
+
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Lint Dockerfile
+      uses: hadolint/hadolint-action@v3.1.0
+      with:
+        dockerfile: Dockerfile
+        
+    - name: Lint Python code
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Python linters
+      run: |
+        pip install flake8 black isort
+        
+    - name: Run Black
+      run: black --check app.py
+      
+    - name: Run isort
+      run: isort --check-only app.py
+      
+    - name: Run flake8
+      run: flake8 app.py --max-line-length=88
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    name: Build and Push
+    needs: [test, security, lint]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/docker-compose-demo:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/docker-compose-demo:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
