@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
-import psycopg2
 import os
 from datetime import datetime
+
+import psycopg2
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
@@ -135,10 +136,10 @@ def stats():
 
             cur.execute(
                 """
-                SELECT DATE(timestamp) as visit_date, COUNT(*) as daily_visits 
-                FROM visits 
-                GROUP BY DATE(timestamp) 
-                ORDER BY visit_date DESC 
+                SELECT DATE(timestamp) as visit_date, COUNT(*) as daily_visits
+                FROM visits
+                GROUP BY DATE(timestamp)
+                ORDER BY visit_date DESC
                 LIMIT 7
             """
             )
@@ -151,8 +152,7 @@ def stats():
                 {
                     "total_visits": total_visits,
                     "daily_stats": [
-                        {"date": str(row[0]), "visits": row[1]}
-                        for row in daily_stats
+                        {"date": str(row[0]), "visits": row[1]} for row in daily_stats
                     ],
                     "timestamp": datetime.now().isoformat(),
                 }
