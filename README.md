@@ -2,12 +2,12 @@
 
 A demonstration project for learning Docker Compose with Flask application, PostgreSQL, and Nginx.
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 graph TB
     Client[👤 Client] --> Nginx[🌐 Nginx:80]
-    Nginx --> Flask[🐍 Flask App:5000]
+    Nginx --> Flask[🐍 Flask App:5001]
     Flask --> PostgreSQL[(🐘 PostgreSQL:5432)]
     
     subgraph "Docker Network"
@@ -25,38 +25,45 @@ graph TB
     Nginx --> Logs
 ```
 
-## 🚀 System Components
+## System Components
 
 | Service | Description | Port | Health Check |
 |---------|-------------|------|--------------|
 | **nginx** | Reverse proxy, load balancer | 80, 443 | ✅ |
-| **web** | Flask Python application | 5000 | ✅ |
+| **web** | Flask Python application | 5001 | ✅ |
 | **db** | PostgreSQL database | 5432 | ✅ |
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 docker-compose-demo/
-├── 📄 app.py                 # Flask application
-├── 📄 Dockerfile             # Docker image for Flask app
-├── 📄 docker-compose.yml     # Services configuration
-├── 📄 requirements.txt       # Python dependencies
-├── 📄 .env                   # Environment variables
-├── 📄 .dockerignore          # Docker exclusions
+├── 📄 app.py			# Flask application
+├── 📄 Dockerfile		# Flask image
+├── 📄 docker-compose.yml	# Services configuration
+├── 📄 docker-compose.prod.yml	# Production configuration
+├── 📄 requirements.txt		# Python dependencies
+├── 📄 .env			# Environment variables
+├── 📄 .dockerignore		# Docker exceptions
+├── 📄 .gitignore		# Git exceptions
+├── 📄 Makefile			# Management commands
+├── 📄 README.md		# Deatailed documentation 
+├── 📄 CHANGELOG.md		# Changelog
 ├── 📁 nginx/
-│   └── 📄 nginx.conf         # Nginx configuration
+│   └── 📄 nginx.conf		# Nginx configuration
 ├── 📁 init-db/
-│   └── 📄 01-init.sql        # Database initialization
-└── 📄 README.md              # Documentation
+│   └── 📄 01-init.sql		# Database initialization
+└── 📁 .github/
+    └── 📁 workflows/
+        └── 📄 ci.yml		# CI/CD pipeline
 ```
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Docker Engine 20.10+
 - Docker Compose 2.0+
-- Available ports: 80, 5000, 5432
+- Available ports: 80, 5001, 5432
 
 ### 1. Clone the Repository
 
@@ -88,7 +95,7 @@ docker compose logs
 docker compose logs web
 ```
 
-## 🧪 Application Testing
+## Application Testing
 
 ### Main Endpoints
 
@@ -113,10 +120,10 @@ curl http://localhost/nginx-health
 curl http://localhost/stats
 
 # Direct Flask access (without Nginx)
-curl http://localhost:5000/
+curl http://localhost:5001/
 ```
 
-## 🔧 Service Management
+## Service Management
 
 ### Main Docker Compose Commands
 
@@ -165,7 +172,7 @@ docker volume ls
 docker volume inspect docker-compose-demo_postgres_data
 ```
 
-## 🐛 Debugging and Troubleshooting
+## Debugging and Troubleshooting
 
 ### Common Issues
 
@@ -219,7 +226,7 @@ docker compose exec web env | grep DB
 docker compose exec web netstat -tlpn
 ```
 
-## 📊 Monitoring and Logging
+## Monitoring and Logging
 
 ### View Logs
 
@@ -251,7 +258,7 @@ docker compose ps
 docker inspect docker-compose-demo_web_1 | grep -A 10 Health
 ```
 
-## 🔒 Security
+## Security
 
 ### Production Recommendations
 
@@ -285,7 +292,7 @@ docker inspect docker-compose-demo_web_1 | grep -A 10 Health
    }
    ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### Production Environment Variables
 
@@ -307,7 +314,7 @@ services:
       - "traefik.http.routers.app.rule=Host(`yourdomain.com`)"
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -315,21 +322,21 @@ services:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Create a Pull Request
 
-## 📝 Changelog
+## Changelog
 
-### v1.0.0 (2024-09-22)
-- ✅ Initial release
-- ✅ Flask application with PostgreSQL
-- ✅ Nginx reverse proxy
-- ✅ Health checks for all services
-- ✅ Docker Compose configuration
-- ✅ Comprehensive documentation
+### v1.0.0 (2025-09-29)
+- Initial release
+- Flask application with PostgreSQL
+- Nginx reverse proxy
+- Health checks for all services
+- Docker Compose configuration
+- Comprehensive documentation
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## Support
 
 If you encounter problems:
 
@@ -339,6 +346,6 @@ If you encounter problems:
 
 ---
 
-**Author:** DevOps Engineer  
-**Date:** September 23, 20254  
+**Author:** Andrei Bychkov
+**Date:** September 29, 2025  
 **Version:** 1.0.0
