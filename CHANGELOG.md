@@ -52,24 +52,24 @@ The format is based on Keep a Changelog, and the project adheres to Semantic Ver
 
 ```
 docker-compose-demo/
-├── app.py			# Flask application
-├── Dockerfile			# Flask image
+├── app.py			        # Flask application
+├── Dockerfile			    # Flask image
 ├── docker-compose.yml		# Services configuration
 ├── docker-compose.prod.yml	# Production configuration
 ├── requirements.txt		# Python dependencies
-├── .env			# Environment variables
-├── .dockerignore		# Docker exceptions
-├── .gitignore			# Git exceptions
-├── Makefile			# Management commands
-├── README.md			# Deatailed documentation 
-├── CHANGELOG.md		# Changelog
+├── .env			        # Environment variables
+├── .dockerignore		    # Docker exceptions
+├── .gitignore			    # Git exceptions
+├── Makefile			    # Management commands
+├── README.md			    # Deatailed documentation 
+├── CHANGELOG.md		    # Changelog
 ├── nginx/
-│   └── nginx.conf		# Nginx configuration
+│   └── nginx.conf		    # Nginx configuration
 ├── init-db/
-│   └── 01-init.sql		# Database initialization
+│   └── 01-init.sql		    # Database initialization
 └── .github/
     └── workflows/
-        └── ci.yml		# CI/CD pipeline
+        └── ci.yml		    # CI/CD pipeline
 ```
 
 ### Makefile Commands
